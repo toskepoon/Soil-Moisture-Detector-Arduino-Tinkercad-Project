@@ -1,0 +1,64 @@
+#include <LiquidCrystal.h>
+
+// A0 пинге "sl" деп ат койдук – топурак нымдуулугун текшерет
+const int sl = A0; 
+
+// 9-пинге "pnsk" деп ат койдук – LED үчүн
+const int pnsk = 9; 
+
+// 8-пинге "asa" деп ат койдук – үн чыгаруучу (buzzer) үчүн
+const int asa = 8; 
+
+// LCDни ушул пиндерге туташтырдык
+LiquidCrystal lcd(7, 6, 5, 4, 3, 2); 
+
+void setup() {
+  lcd.begin(16, 2); // 16x2 LCDди иштетебиз
+  lcd.setCursor(0, 0); // курсорду биринчи катарга коебуз
+  lcd.print("Moisture level: "); // биринчи сапка текст чыгат
+
+  pinMode(sl, INPUT); // топурак сенсорун киргизүү катары койдук
+  pinMode(pnsk, OUTPUT); // LEDди чыгуу катары койдук
+  pinMode(asa, OUTPUT); // үн чыгаруучуну чыгуу катары койдук
+
+  Serial.begin(9600); // компьютер менен байланыш ачабыз
+  delay(1000); // кичине күтүп туралы
+}
+
+void perfectCondition() {
+  lcd.clear(); 
+  lcd.setCursor(0, 0);
+  lcd.print("Soil is perfect"); // баары жайында
+
+  digitalWrite(asa, LOW); // үн өчөт
+  noTone(pnsk); // LED үн чыкпай калат
+}
+
+void alertCondition() {
+  tone(pnsk, 1000); // LED үн чыгарат
+  digitalWrite(asa, HIGH); // үн чыгаруучу иштейт
+  delay(200);
+  digitalWrite(asa, LOW); // үн токтойт
+  noTone(pnsk); // үн чыкпайт
+  delay(200);
+}
+
+void loop() {
+  int cval = analogRead(sl); // нымдуулукту окуйбуз
+  Serial.print("Moisture Value: ");
+  Serial.println(cval); // мониторго чыгат
+
+  lcd.setCursor(0, 1); // экинчи сапка жазабыз
+  lcd.print("Value: ");
+  lcd.print(cval); // маанини чыгарабыз
+  lcd.print("   "); // эски цифраларды тазалайт
+
+  // Текшеребиз: өтө нымдуу же өтө кургак болсо – сигнал берет
+  if (cval > 601) {
+    alertCondition();
+  } else if (cval < 300) {
+    alertCondition();
+  } else {
+    perfectCondition(); // баары норм болсо
+  }
+}
