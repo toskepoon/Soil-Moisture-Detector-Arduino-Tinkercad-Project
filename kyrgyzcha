@@ -1,64 +1,64 @@
 #include <LiquidCrystal.h>
 
-// A0 пинге "sl" деп ат койдук – топурак нымдуулугун текшерет
+// A0 пин дээр "sl" нэр өгсөн – хөрсний чийгшлийг шалгана
 const int sl = A0; 
 
-// 9-пинге "pnsk" деп ат койдук – LED үчүн
+// 9-пин дээр "pnsk" нэр өгсөн – LED-ийн зориулалттай
 const int pnsk = 9; 
 
-// 8-пинге "asa" деп ат койдук – үн чыгаруучу (buzzer) үчүн
+// 8-пин дээр "asa" нэр өгсөн – дуу гаргагч (buzzer)-ийн зориулалттай
 const int asa = 8; 
 
-// LCDни ушул пиндерге туташтырдык
+// LCD-г дараах пинуудтай холбосон
 LiquidCrystal lcd(7, 6, 5, 4, 3, 2); 
 
 void setup() {
-  lcd.begin(16, 2); // 16x2 LCDди иштетебиз
-  lcd.setCursor(0, 0); // курсорду биринчи катарга коебуз
-  lcd.print("Moisture level: "); // биринчи сапка текст чыгат
+  lcd.begin(16, 2); // 16x2 LCD-г асаана
+  lcd.setCursor(0, 0); // курсорыг эхний мөрөнд байрлуулна
+  lcd.print("Moisture level: "); // эхний мөрөнд текст гаргана
 
-  pinMode(sl, INPUT); // топурак сенсорун киргизүү катары койдук
-  pinMode(pnsk, OUTPUT); // LEDди чыгуу катары койдук
-  pinMode(asa, OUTPUT); // үн чыгаруучуну чыгуу катары койдук
+  pinMode(sl, INPUT); // хөрсний чийг мэдрэгчийг оролт болгон тохируулна
+  pinMode(pnsk, OUTPUT); // LED-г гаралт болгон тохируулна
+  pinMode(asa, OUTPUT); // дуу гаргагчийг гаралт болгон тохируулна
 
-  Serial.begin(9600); // компьютер менен байланыш ачабыз
-  delay(1000); // кичине күтүп туралы
+  Serial.begin(9600); // компьютертэй холболт үүсгэнэ
+  delay(1000); // бага зэрэг хүлээнэ
 }
 
 void perfectCondition() {
   lcd.clear(); 
   lcd.setCursor(0, 0);
-  lcd.print("Soil is perfect"); // баары жайында
+  lcd.print("Soil is perfect"); // бүгд хэвийн байна
 
-  digitalWrite(asa, LOW); // үн өчөт
-  noTone(pnsk); // LED үн чыкпай калат
+  digitalWrite(asa, LOW); // дуу унтарна
+  noTone(pnsk); // LED-ээс дуу гарахгүй
 }
 
 void alertCondition() {
-  tone(pnsk, 1000); // LED үн чыгарат
-  digitalWrite(asa, HIGH); // үн чыгаруучу иштейт
+  tone(pnsk, 1000); // LED дуу гаргана
+  digitalWrite(asa, HIGH); // дуу гаргагч ажиллана
   delay(200);
-  digitalWrite(asa, LOW); // үн токтойт
-  noTone(pnsk); // үн чыкпайт
+  digitalWrite(asa, LOW); // дуу зогсоно
+  noTone(pnsk); // дууг зогсооно
   delay(200);
 }
 
 void loop() {
-  int cval = analogRead(sl); // нымдуулукту окуйбуз
+  int cval = analogRead(sl); // чийгшлийн утгыг уншина
   Serial.print("Moisture Value: ");
-  Serial.println(cval); // мониторго чыгат
+  Serial.println(cval); // монитор руу хэвлэнэ
 
-  lcd.setCursor(0, 1); // экинчи сапка жазабыз
+  lcd.setCursor(0, 1); // хоёр дахь мөрөнд бичнэ
   lcd.print("Value: ");
-  lcd.print(cval); // маанини чыгарабыз
-  lcd.print("   "); // эски цифраларды тазалайт
+  lcd.print(cval); // утгыг харуулна
+  lcd.print("   "); // хуучин тоонуудыг цэвэрлэнэ
 
-  // Текшеребиз: өтө нымдуу же өтө кургак болсо – сигнал берет
+  // Шалгах: хэт нойтон эсвэл хэт хуурай бол дохио өгнө
   if (cval > 601) {
     alertCondition();
   } else if (cval < 300) {
     alertCondition();
   } else {
-    perfectCondition(); // баары норм болсо
+    perfectCondition(); // бүгд хэвийн байвал
   }
 }
